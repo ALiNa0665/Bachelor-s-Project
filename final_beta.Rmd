@@ -1,0 +1,91 @@
+---
+title: "Feedback"
+author: "Alina Nechita"
+date: "2023-12-31"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r }
+pacman::p_load(
+  tidyverse        
+)
+library(stats)
+library(tidyverse)
+library(readxl)
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r}
+library(betareg)
+
+# Load data Excel
+excel_path <- 'C:/Users/nalin/OneDrive/Documente/Analysis/final_excell.xlsx'
+df <- readxl::read_excel(excel_path)
+
+df$agentic_proportion <- as.numeric(df$agentic_proportion)
+df$communal_proportion <- as.numeric(df$communal_proportion)
+df$females_ratio <- as.numeric(df$females_ratio)
+
+```
+
+```{r}
+
+# Fit the beta regression model with a logit link
+beta_model <- betareg(females_ratio ~ agentic_proportion, data = df, link = "logit")
+
+summary(beta_model)
+plot(beta_model)
+```
+
+```{r}
+library(ggplot2)
+
+ggplot(df, aes(x = agentic_proportion, y = females_ratio)) +
+  geom_point(color = "turquoise3", size = 3) +  # Adjust point aesthetics
+  stat_function(fun = function(x) predict(beta_model, newdata = data.frame(agentic_proportion = x), type = "response"), 
+                color = "red2", size = 1.5) +  # Improve trendline visibility
+  labs(title = "Relationship between Agentic Proportion and Female Ratio",
+       x = "Agentic Words Proportion",
+       y = "Female Applicants Ratio") +
+  theme_minimal(base_size = 13) +  # Use a minimal theme with larger base font size
+  theme(plot.title = element_text(face = "bold"))  # Bold title
+
+```
+
+```{r}
+library(betareg)
+beta_model <- betareg(females_ratio ~ communal_proportion, data = df, link = "logit")
+
+summary(beta_model)
+plot(beta_model)
+
+library(ggplot2)
+
+ggplot(df, aes(x = communal_proportion, y = females_ratio)) +
+  geom_point(color = "turquoise3", size = 3) +  
+  stat_function(fun = function(x) predict(beta_model, newdata = data.frame(communal_proportion = x), type = "response"), 
+                color = "red2", size = 1.5) +  
+  labs(title = "Relationship between Communal Proportion and Female Ratio",
+       x = "Communal Words Proportion",
+       y = "Female Applicants Ratio") +
+  theme_minimal(base_size = 12) + 
+  theme(plot.title = element_text(face = "bold"))  
+
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
